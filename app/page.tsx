@@ -8,7 +8,7 @@ export default function Home() {
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const [isAnimating, setIsAnimating] = useState(true)
   const [isHovered, setIsHovered] = useState(false)
-  const [isLiveActive, setIsLiveActive] = useState(false)
+  const [isLiveActive, setIsLiveActive] = useState(false)  // Add this line
   const nodeRef = useRef(null)
 
   useEffect(() => {
@@ -18,6 +18,7 @@ export default function Home() {
     // Posizione iniziale: fuori dallo schermo in basso
     setPosition({ x: finalX, y: window.innerHeight })
 
+    // Avvia l'animazione dopo un breve ritardo
     const animationTimer = setTimeout(() => {
       // Animazione verso l'alto
       setPosition({ x: finalX, y: finalY })
@@ -35,7 +36,7 @@ export default function Home() {
   const checkLiveStatus = async () => {
     try {
       // Replace 'iamvizzi' with the actual channel name
-      const response = await fetch('https://kick.com/api/v1/channels/qoqsik')
+      const response = await fetch('https://kick.com/api/v1/channels/xqc')
       const data = await response.json()
       setIsLiveActive(data.livestream !== null)
     } catch (error) {
@@ -54,10 +55,6 @@ export default function Home() {
 
   const handleSubmit = async (_e: React.FormEvent, _data: string) => {
     // Your function implementation
-  }
-
-  if (!isLiveActive) {
-    return null // Don't render anything if the live is not active
   }
 
   return (
@@ -84,10 +81,10 @@ export default function Home() {
           onMouseLeave={() => setIsHovered(false)}
         >
           <div className="relative w-full h-full">
-            <div className="responsive-iframe-container">
+            <div className={`responsive-iframe-container ${isHovered ? 'hovered' : ''}`}>
               <iframe 
                 className="responsive-iframe"
-                src="https://player.kick.com/qoqsik?autoplay=true" 
+                src="https://player.kick.com/xqc?autoplay=true?muted=false" 
                 frameBorder="0" 
                 scrolling="no" 
                 allowFullScreen={true}
@@ -122,6 +119,12 @@ export default function Home() {
           width: 100%;
           height: 100%;
           overflow: hidden;
+          border: 3px solid transparent;
+          border-radius: 0.75rem; // This matches the rounded-xl class
+          transition: border-color 0.3s ease;
+        }
+        .responsive-iframe-container.hovered {
+          border-color: #53FC18;
         }
         .responsive-iframe {
           position: absolute;
@@ -130,6 +133,7 @@ export default function Home() {
           width: 100%;
           height: 100%;
           border: 0;
+          border-radius: 0.6rem; // Slightly smaller to fit inside the container
         }
         @keyframes pulse {
           0% {
