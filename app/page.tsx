@@ -1,101 +1,108 @@
-import Image from "next/image";
+'use client'
+
+import { useState, useEffect, useRef } from 'react'
+import Draggable from 'react-draggable'
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [position, setPosition] = useState({ x: 0, y: 0 })
+  const [isAnimating, setIsAnimating] = useState(true)
+  const [isHovered, setIsHovered] = useState(false)
+  const nodeRef = useRef(null)
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  useEffect(() => {
+    const finalX = window.innerWidth - 480 - 16
+    const finalY = window.innerHeight - 270 - 16
+
+    // Posizione iniziale: fuori dallo schermo in basso
+    setPosition({ x: finalX, y: window.innerHeight })
+
+    const animationTimer = setTimeout(() => {
+      // Animazione verso l'alto
+      setPosition({ x: finalX, y: finalY })
+      
+      const animationDuration = 500
+      setTimeout(() => setIsAnimating(false), animationDuration)
+    }, 100)
+
+    return () => clearTimeout(animationTimer)
+  }, [])
+
+  const handleDrag = (e, data) => {
+    // Non aggiorniamo lo stato durante il trascinamento
+  }
+
+  const handleStop = (e, data) => {
+    setPosition({ x: data.x, y: data.y })
+  }
+
+  return (
+    <div className="min-h-screen bg-white relative overflow-hidden">
+      <Draggable 
+        nodeRef={nodeRef}
+        position={position} 
+        onDrag={handleDrag}
+        onStop={handleStop}
+        bounds="parent" 
+        handle=".drag-handle"
+        disabled={isAnimating}
+      >
+        <div 
+          ref={nodeRef}
+          className="absolute inline-block overflow-hidden rounded-xl shadow-lg transition-all duration-300 ease-in-out"
+          style={{ 
+            width: 480, 
+            height: 270,
+            transition: isAnimating ? 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none',
+            transform: `translate(${position.x}px, ${position.y}px)`,
+          }}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          <div className="relative w-full h-full">
+            <iframe 
+              src="https://player.kick.com/iamvizzi?autoplay=true" 
+              width="100%"
+              height="100%"
+              frameBorder="0" 
+              scrolling="no" 
+              allowFullScreen={true}
+              disablePictureInPicture={true}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            <div className="absolute top-2 left-2">
+              <button 
+                className="drag-handle w-8 h-8 bg-gray-800 bg-opacity-50 rounded-full flex items-center justify-center text-white hover:bg-opacity-75 focus:outline-none transition-colors duration-200"
+                title="Trascina per spostare"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+                </svg>
+              </button>
+            </div>
+            {isHovered && (
+              <div 
+                className="absolute inset-0 rounded-xl pointer-events-none"
+                style={{
+                  boxShadow: '0 0 0 3px #53FC18',
+                  animation: 'pulse 2s infinite'
+                }}
+              />
+            )}
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </Draggable>
+      <style jsx global>{`
+        @keyframes pulse {
+          0% {
+            box-shadow: 0 0 0 0 rgba(83, 252, 24, 0.7);
+          }
+          70% {
+            box-shadow: 0 0 0 10px rgba(83, 252, 24, 0);
+          }
+          100% {
+            box-shadow: 0 0 0 0 rgba(83, 252, 24, 0);
+          }
+        }
+      `}</style>
     </div>
-  );
+  )
 }
