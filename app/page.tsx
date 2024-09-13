@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import Draggable from 'react-draggable'
+import { DraggableEvent, DraggableData } from 'react-draggable'
+import Draggable from 'react-draggable'; // Add this import at the top of your file
 
 export default function Home() {
   const [position, setPosition] = useState({ x: 0, y: 0 })
@@ -27,12 +28,16 @@ export default function Home() {
     return () => clearTimeout(animationTimer)
   }, [])
 
-  const handleDrag = (e, data) => {
+  const handleDrag = (e: DraggableEvent, data: DraggableData) => {
     // Non aggiorniamo lo stato durante il trascinamento
   }
 
-  const handleStop = (e, data) => {
+  const handleStop = (e: DraggableEvent, data: DraggableData) => {
     setPosition({ x: data.x, y: data.y })
+  }
+
+  const handleSubmit = async (_e: React.FormEvent, _data: string) => {
+    // Your function implementation
   }
 
   return (
@@ -66,7 +71,7 @@ export default function Home() {
               frameBorder="0" 
               scrolling="no" 
               allowFullScreen={true}
-              disablePictureInPicture={true}
+              allow="fullscreen; picture-in-picture"
             />
             <div className="absolute top-2 left-2">
               <button 
