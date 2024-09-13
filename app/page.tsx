@@ -8,6 +8,7 @@ export default function Home() {
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const [isAnimating, setIsAnimating] = useState(true)
   const [isHovered, setIsHovered] = useState(false)
+  const [isLiveActive, setIsLiveActive] = useState(false)
   const nodeRef = useRef(null)
 
   useEffect(() => {
@@ -25,8 +26,23 @@ export default function Home() {
       setTimeout(() => setIsAnimating(false), animationDuration)
     }, 100)
 
+    // Check if the live is active
+    checkLiveStatus()
+
     return () => clearTimeout(animationTimer)
   }, [])
+
+  const checkLiveStatus = async () => {
+    try {
+      // Replace 'iamvizzi' with the actual channel name
+      const response = await fetch('https://kick.com/api/v1/channels/qoqsik')
+      const data = await response.json()
+      setIsLiveActive(data.livestream !== null)
+    } catch (error) {
+      console.error('Error checking live status:', error)
+      setIsLiveActive(false)
+    }
+  }
 
   const handleDrag = (e: DraggableEvent, data: DraggableData) => {
     // Non aggiorniamo lo stato durante il trascinamento
@@ -38,6 +54,10 @@ export default function Home() {
 
   const handleSubmit = async (_e: React.FormEvent, _data: string) => {
     // Your function implementation
+  }
+
+  if (!isLiveActive) {
+    return null // Don't render anything if the live is not active
   }
 
   return (
@@ -64,15 +84,16 @@ export default function Home() {
           onMouseLeave={() => setIsHovered(false)}
         >
           <div className="relative w-full h-full">
-            <iframe 
-              src="https://player.kick.com/iamvizzi?autoplay=true" 
-              width="100%"
-              height="100%"
-              frameBorder="0" 
-              scrolling="no" 
-              allowFullScreen={true}
-              allow="fullscreen; picture-in-picture"
-            />
+            <div className="responsive-iframe-container">
+              <iframe 
+                className="responsive-iframe"
+                src="https://player.kick.com/qoqsik?autoplay=true" 
+                frameBorder="0" 
+                scrolling="no" 
+                allowFullScreen={true}
+                allow="fullscreen; picture-in-picture"
+              />
+            </div>
             <div className="absolute top-2 left-2">
               <button 
                 className="drag-handle w-8 h-8 bg-gray-800 bg-opacity-50 rounded-full flex items-center justify-center text-white hover:bg-opacity-75 focus:outline-none transition-colors duration-200"
@@ -95,7 +116,21 @@ export default function Home() {
           </div>
         </div>
       </Draggable>
-      <style jsx global>{`
+      <style jsx>{`
+        .responsive-iframe-container {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+        }
+        .responsive-iframe {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          border: 0;
+        }
         @keyframes pulse {
           0% {
             box-shadow: 0 0 0 0 rgba(83, 252, 24, 0.7);
